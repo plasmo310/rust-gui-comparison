@@ -1,0 +1,11 @@
+[package]
+name = "todo-slint"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+slint = "1.18.1"
+
+[build-dependencies]
+slint-build = "1.18.1"

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rust GUI 比較: TODO アプリ 7 通り</title>
+<style>
+  :root { --bg:#fafaf8; --fg:#1c1c1a; --muted:#66655f; --card:#fff; --line:#e3e2dc; --accent:#c2410c; --code:#f3f2ec; --bar:#c2410c; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#161614; --fg:#ecebe5; --muted:#a2a199; --card:#1f1f1c; --line:#33322e; --accent:#fb923c; --code:#262521; --bar:#fb923c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.7 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  h2 { font-size: 20px; margin: 44px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+  p.lead { color: var(--muted); margin: 0 0 8px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+  .note { border-left:4px solid var(--accent); background:var(--card); padding:10px 14px; border-radius:0 8px 8px 0; margin:14px 0; }
+  .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--card); }
+  table { border-collapse: collapse; width:100%; min-width: 760px; font-size:14px; }
+  th, td { padding:9px 12px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:var(--code); font-weight:600; white-space:nowrap; position:sticky; top:0; }
+  tr:last-child td { border-bottom:none; }
+  td.num { text-align:right; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  code, pre { font-family: ui-monospace,"SF Mono",Menlo,monospace; font-size:13px; }
+  code { background:var(--code); padding:1px 5px; border-radius:4px; }
+  pre { background:var(--code); padding:14px; border-radius:8px; overflow-x:auto; margin:0; line-height:1.55; }
+  .ok { color:#16a34a; font-weight:600; } .ng { color:#dc2626; font-weight:600; } .na { color:var(--muted); }
+  .tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .tab { border:1px solid var(--line); background:var(--card); color:var(--fg); padding:6px 14px; border-radius:999px; cursor:pointer; font:inherit; }
+  .tab[aria-selected="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:14px; }
+  .charts { display:grid; grid-template-columns: repeat(auto-fit,minmax(440px,1fr)); gap:14px; }
+  .chart-title { font-weight:600; margin-bottom:8px; }
+  .row { display:grid; grid-template-columns: 90px 1fr 84px; align-items:center; gap:10px; margin:5px 0; font-size:13px; }
+  .track { background:var(--code); border-radius:4px; height:16px; overflow:hidden; }
+  .fill { background:var(--bar); height:100%; border-radius:4px; }
+  .val { text-align:right; font-variant-numeric: tabular-nums; }
+  .pros { color:#16a34a; } .cons { color:#dc2626; }
+  ul.tight { margin:6px 0 0; padding-left:20px; }
+  .pick { display:grid; grid-template-columns: 1fr auto; gap:6px 14px; }
+  .pick b { color:var(--accent); }
+  footer { color:var(--muted); margin-top:48px; font-size:13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Rust GUI 比較: 同一 TODO アプリを 7 通りで実装</h1>
+  <p class="lead">追加 / 完了トグル / 削除 / 残件数表示。各フォルダは独立した Cargo プロジェクトです。<code>00-basic</code> は GUI なしの Rust 言語入門サンプル。</p>
+  <div class="note"><b>検証範囲:</b> 全アプリのビルド（リリース含む）成功までを確認しました。ウィンドウを起動しての動作確認は<b>していません</b>。</div>
+
+  <h2>1. 一覧</h2>
+  <div class="table-wrap"><table>
+    <tr><th>フォルダ</th><th>手法</th><th>バージョン</th><th>ビルド</th><th>リリース</th></tr>
+    <tr><td><code>00-basic</code></td><td>Rust 言語の主要機能 (CLI)</td><td>rustc 1.99.0</td><td class="ok">OK</td><td class="ok">OK (テスト 3 件成功)</td></tr>
+    <tr><td><code>01-tauri</code></td><td>Tauri (WebView + HTML/JS + Rust)</td><td>2.12.2</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+    <tr><td><code>02-egui</code></td><td>egui / eframe (即時モード)</td><td>0.36.2</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+    <tr><td><code>03-iced</code></td><td>Iced (Elm アーキテクチャ)</td><td>0.14.0</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+    <tr><td><code>04-slint</code></td><td>Slint (宣言的 DSL)</td><td>1.18.1</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+    <tr><td><code>05-dioxus</code></td><td>Dioxus desktop (RSX + signals)</td><td>0.7.10</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+    <tr><td><code>06-leptos</code></td><td>Leptos CSR (WASM)</td><td>0.8.22 + trunk</td><td class="ok">OK (wasm32)</td><td class="ok">OK (trunk)</td></tr>
+    <tr><td><code>07-gtk4</code></td><td>GTK4 (gtk4-rs)</td><td>0.11.5</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+  </table></div>
+
+  <h2>2. 実測値</h2>
+  <p class="lead">macOS (Apple Silicon) / Rust 1.99.0 / 既定のリリースプロファイル。ビルド時間は 1 回の計測値です。</p>
+  <div class="charts" id="charts"></div>
+  <div class="table-wrap" style="margin-top:14px"><table>
+    <tr><th>手法</th><th>行数 (Rust+UI)</th><th>依存数</th><th>リリースビルド</th><th>成果物</th><th>target/ 合計</th></tr>
+    <tr><td>00-basic</td><td class="num">223</td><td class="num">1</td><td class="num">&lt;1 秒</td><td class="num">518 KB</td><td class="num">12 MB</td></tr>
+    <tr><td>Tauri</td><td class="num">59 + 46 = 105</td><td class="num">407</td><td class="num">70 秒</td><td class="num">9.6 MB</td><td class="num">2,160 MB</td></tr>
+    <tr><td>egui</td><td class="num">46</td><td class="num">418</td><td class="num">41 秒</td><td class="num">13.1 MB</td><td class="num">2,212 MB</td></tr>
+    <tr><td>Iced</td><td class="num">70</td><td class="num">383</td><td class="num">34 秒</td><td class="num">10.6 MB</td><td class="num">1,903 MB</td></tr>
+    <tr><td>Slint</td><td class="num">54 + 34 = 88</td><td class="num">568</td><td class="num">60 秒</td><td class="num">15.6 MB</td><td class="num">3,827 MB</td></tr>
+    <tr><td>Dioxus</td><td class="num">61</td><td class="num">543</td><td class="num">46 秒</td><td class="num">6.0 MB</td><td class="num">2,440 MB</td></tr>
+    <tr><td>Leptos</td><td class="num">52 + 9 = 61</td><td class="num">181</td><td class="num na">計測不可 *</td><td class="num">wasm 341 KB + JS 30 KB</td><td class="num">1,767 MB</td></tr>
+    <tr><td>GTK4</td><td class="num">102</td><td class="num">65</td><td class="num">42 秒</td><td class="num">515 KB **</td><td class="num">965 MB</td></tr>
+  </table></div>
+  <p class="lead" style="font-size:13px;margin-top:8px">* 初回の trunk build は約 44 分かかりましたが、ツール取得などの待ちを切り分けていないため採用していません。<br>** GTK4 はシステムの GTK ライブラリを動的リンクするため小さく見えます。配布時はランタイムが必要です。</p>
+
+  <h2>3. 普及度・成熟度（選定用データ）</h2>
+  <p class="lead">2026-10-10 に crates.io API / GitHub API から取得したスナップショットです。</p>
+  <div class="table-wrap"><table>
+    <tr><th>手法</th><th>GitHub ★</th><th>フォーク</th><th>未解決 Issue</th><th>累計DL</th><th>直近90日DL</th><th>最新安定版</th><th>最終リリース</th><th>初版</th></tr>
+    <tr><td>Tauri</td><td class="num">111,721</td><td class="num">4,053</td><td class="num">1,491</td><td class="num">35.4M</td><td class="num">13.9M</td><td>2.12.2</td><td>2026-10-09</td><td>2019</td></tr>
+    <tr><td>egui (eframe)</td><td class="num">31,140</td><td class="num">2,184</td><td class="num">1,037</td><td class="num">20.1M</td><td class="num">5.0M</td><td>0.36.2</td><td>2026-09-08</td><td>2020</td></tr>
+    <tr><td>Iced</td><td class="num">31,711</td><td class="num">1,699</td><td class="num">510</td><td class="num">2.9M</td><td class="num">0.64M</td><td>0.14.0</td><td>2025-12-07</td><td>2019</td></tr>
+    <tr><td>Slint</td><td class="num">24,126</td><td class="num">1,028</td><td class="num">827</td><td class="num">1.9M</td><td class="num">0.61M</td><td>1.18.1</td><td>2026-09-21</td><td>2022</td></tr>
+    <tr><td>Dioxus</td><td class="num">39,356</td><td class="num">1,919</td><td class="num">821</td><td class="num">3.0M</td><td class="num">1.15M</td><td>0.7.10</td><td>2026-07-31</td><td>2021</td></tr>
+    <tr><td>Leptos</td><td class="num">21,374</td><td class="num">904</td><td class="num">112</td><td class="num">5.1M</td><td class="num">1.40M</td><td>0.8.22</td><td>2026-10-05</td><td>2022</td></tr>
+    <tr><td>GTK4 (gtk4-rs)</td><td class="num">2,355</td><td class="num">217</td><td class="num">78</td><td class="num">4.8M</td><td class="num">1.57M</td><td>0.11.5</td><td>2026-09-20</td><td>2019</td></tr>
+  </table></div>
+  <div class="charts" id="pop" style="margin-top:14px"></div>
+  <div class="note"><b>読み取り方:</b>
+    <ul class="tight">
+      <li>ダウンロード数は<b>シェアではありません</b>。CI や他クレートからの間接依存を含みます。公式の利用率統計は無く、人気の目安です。</li>
+      <li>1.0 未満 (0.x) が多く、マイナー更新ごとに破壊的変更があります。1.0 以上は Tauri 2.x と Slint 1.x のみ。</li>
+      <li>Iced はコミットは活発ですが、crates.io の最終リリースは約 10 か月前です。</li>
+    </ul>
+  </div>
+  <div class="table-wrap" style="margin-top:14px"><table>
+    <tr><th>手法</th><th>ライセンス</th><th>対応ターゲット</th><th>備考</th></tr>
+    <tr><td>Tauri</td><td>Apache-2.0 / MIT</td><td>Windows, macOS, Linux, iOS, Android</td><td>WebView 利用。フロントは任意の Web FW</td></tr>
+    <tr><td>egui</td><td>Apache-2.0 / MIT</td><td>デスクトップ, Web (WASM), Android</td><td>ツール/ゲーム内 UI に多い。アクセシビリティは AccessKit 経由</td></tr>
+    <tr><td>Iced</td><td>MIT</td><td>デスクトップ, Web (実験的)</td><td>Linux の COSMIC デスクトップで採用</td></tr>
+    <tr><td>Slint</td><td>GPL-3.0（OSS）/ ロイヤリティフリー（独自アプリのデスクトップ・モバイル・Web）/ 商用（組込み含む）</td><td>デスクトップ, 組込み/MCU, Web, Android</td><td>商用利用は条件を事前確認</td></tr>
+    <tr><td>Dioxus</td><td>Apache-2.0 / MIT</td><td>デスクトップ, Web, モバイル, フルスタック</td><td>若く API が変化中</td></tr>
+    <tr><td>Leptos</td><td>MIT</td><td>Web（CSR/SSR）</td><td>ネイティブアプリには使えない</td></tr>
+    <tr><td>GTK4</td><td>MIT (ラッパー) / LGPL-2.1+ (GTK 本体)</td><td>Linux が第一級、macOS/Windows も可</td><td>GNOME アプリで標準的</td></tr>
+  </table></div>
+  <p class="lead" style="font-size:13px;margin-top:8px">ライセンスと対応ターゲットは公開情報に基づく一般的な整理で、今回のコードでは検証していません。導入前に公式ドキュメントで確認してください。</p>
+  <div class="card" style="margin-top:14px"><b>選定チェックリスト</b>
+    <ol class="tight">
+      <li><b>配布先</b>: ブラウザ → Leptos / デスクトップ+モバイル → Tauri, Dioxus / 組込み → Slint / Linux ネイティブ → GTK4</li>
+      <li><b>チームのスキル</b>: Web 経験者 → Tauri, Dioxus, Leptos / 純 Rust → egui, Iced</li>
+      <li><b>ライセンス</b>: Slint は商用条件、GTK は LGPL のリンク条件を確認</li>
+      <li><b>安定性</b>: 0.x は API 追従コストを見込む。長期保守なら Tauri 2 / Slint 1 が有利</li>
+      <li><b>IME・アクセシビリティ</b>: 独自描画系 (egui, Iced, Slint) は日本語入力を実機で要確認</li>
+    </ol>
+  </div>
+
+  <h2>4. 開発環境構築コスト</h2>
+  <p class="lead">Rust（rustup）と C リンカ（macOS: Xcode CLT / Windows: MSVC Build Tools / Linux: build-essential）は共通です。以下はそれ以外に必要なもの。macOS は実際に実行して確認、Linux / Windows は公式ドキュメント（2026-10-10 取得）の記載で、実機では未検証です。</p>
+  <div class="table-wrap"><table>
+    <tr><th>手法</th><th>macOS</th><th>Linux (Debian/Ubuntu)</th><th>Windows</th><th>コスト (mac / Linux / Win)</th></tr>
+    <tr><td>Tauri</td><td>追加なし</td><td><code>apt install</code> 8 パッケージ（libwebkit2gtk-4.1-dev, libxdo-dev, libssl-dev, libayatana-appindicator3-dev, librsvg2-dev ほか）</td><td>WebView2（Win10 1803 以降は標準）</td><td>低 / 中 / 低〜中</td></tr>
+    <tr><td>egui</td><td>追加なし</td><td>公式 README: <code>apt install</code> 6 パッケージ（libclang-dev, libgtk-3-dev, libxcb-*-dev, libxkbcommon-dev, libssl-dev）※デモアプリ向けの記載</td><td>追加なし（公式記載）</td><td>低 / 中 / 低</td></tr>
+    <tr><td>Iced</td><td>追加なし</td><td>公式 README に記載なし（未確認）</td><td>公式 README に記載なし</td><td>低 / 不明 / 低</td></tr>
+    <tr><td>Slint</td><td>追加なし</td><td>公式 README に記載なし（未確認）</td><td>公式 README に記載なし</td><td>低 / 不明 / 低</td></tr>
+    <tr><td>Dioxus</td><td>追加なし</td><td><code>apt install</code> 9 パッケージ（Tauri と同じ + lld）</td><td>WebView2（Edge があれば可）</td><td>低 / 中 / 低〜中</td></tr>
+    <tr><td>Leptos</td><td><code>rustup target add wasm32-unknown-unknown</code> と <code>cargo install trunk --locked</code></td><td>同左</td><td>同左</td><td>中 / 中 / 中</td></tr>
+    <tr><td>GTK4</td><td><code>brew install gtk4</code></td><td><code>apt install libgtk-4-dev libadwaita-1-dev meson ...</code>（公式 book）</td><td>gvsbuild で GTK をビルドし環境変数を 5 項目設定（最短の公式手順）。他に MSYS2 / 手動ビルドの選択肢あり</td><td>低 / 中 / 高</td></tr>
+  </table></div>
+  <p class="lead" style="font-size:13px;margin-top:8px">コスト目安は手順数と難しさに基づく筆者の判断です（低: 追加なし / 中: 導入 1〜2 コマンド / 高: 多段手順や環境変数設定）。</p>
+  <h3 style="margin-top:24px">ゼロから動かすまで（macOS）</h3>
+  <pre>xcode-select --install
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh</pre>
+  <div class="table-wrap" style="margin-top:10px"><table>
+    <tr><th>手法</th><th>追加の準備</th><th>実行</th><th>初回 cargo build *</th></tr>
+    <tr><td>Tauri</td><td>なし</td><td><code>cd 01-tauri/src-tauri &amp;&amp; cargo run</code></td><td class="num">80 秒</td></tr>
+    <tr><td>egui</td><td>なし</td><td><code>cd 02-egui &amp;&amp; cargo run</code></td><td class="num">約 20 秒 **</td></tr>
+    <tr><td>Iced</td><td>なし</td><td><code>cd 03-iced &amp;&amp; cargo run</code></td><td class="num">24 秒</td></tr>
+    <tr><td>Slint</td><td>なし</td><td><code>cd 04-slint &amp;&amp; cargo run</code></td><td class="num">29 秒</td></tr>
+    <tr><td>Dioxus</td><td>なし</td><td><code>cd 05-dioxus &amp;&amp; cargo run</code></td><td class="num">17 秒</td></tr>
+    <tr><td>Leptos</td><td><code>rustup target add wasm32-unknown-unknown</code><br><code>cargo install trunk --locked</code></td><td><code>cd 06-leptos &amp;&amp; trunk serve --open</code></td><td class="num">46 秒 (wasm32)</td></tr>
+    <tr><td>GTK4</td><td><code>brew install gtk4</code></td><td><code>cd 07-gtk4 &amp;&amp; cargo run</code></td><td class="num">23 秒</td></tr>
+  </table></div>
+  <p class="lead" style="font-size:13px;margin-top:8px">* デバッグビルド、依存取得込みの 1 回計測。キャッシュで変わる目安です。 ** 最初のビルドが API 変更でコンパイルエラーになったため、依存クレートまでの時間です。</p>
+  <div class="note"><b>任意の CLI:</b> <code>cargo tauri</code>（今回の構成では不要）、<code>dx</code>（公式によるとソースビルドは最大 10 分。ビルド済みバイナリ推奨）、Node.js（Tauri で JS フレームワークを使う場合のみ）。</div>
+  <div class="note"><b>実際に詰まった点:</b>
+    <ul class="tight">
+      <li>Tauri: <code>icons/icon.png</code> が無いとビルドできない。設定と権限ファイルが必要。</li>
+      <li>eframe 0.36: <code>App::update</code> は廃止され <code>App::ui(ui, frame)</code> に変更。古い記事のコードはそのままでは動かない。</li>
+      <li>Leptos は <code>cargo run</code> では動かず trunk が前提。</li>
+      <li>GTK4: macOS は 1 コマンドだが、Windows の公式手順は最短でも GTK のビルドと環境変数設定が必要で最も重い。</li>
+    </ul>
+  </div>
+  <div class="card" style="margin-top:14px"><b>総合（軽い順）:</b> egui ≒ Iced ≒ Slint（ほぼ <code>cargo run</code> だけ）→ Dioxus ≒ Tauri（Linux でパッケージ導入）→ Leptos（trunk と WASM ターゲット）→ GTK4（特に Windows）</div>
+
+  <h2>5. 実装方法の違い</h2>
+  <div class="table-wrap"><table>
+    <tr><th>手法</th><th>描画</th><th>状態管理</th><th>UI の書き方</th></tr>
+    <tr><td>Tauri</td><td>OS の WebView (DOM)</td><td>Rust 側 <code>Mutex&lt;Store&gt;</code> + コマンド</td><td>HTML / CSS / JS</td></tr>
+    <tr><td>egui</td><td>即時モード (毎フレーム再構築)</td><td>構造体のフィールド</td><td><code>ui.button()</code> 等を毎フレーム呼ぶ</td></tr>
+    <tr><td>Iced</td><td>保持モード + wgpu</td><td><code>Message</code> + <code>update</code> (Elm)</td><td><code>view</code> が <code>Element</code> を返す</td></tr>
+    <tr><td>Slint</td><td>独自レンダラ</td><td>.slint プロパティ + <code>VecModel</code></td><td>宣言的 DSL + コールバック</td></tr>
+    <tr><td>Dioxus</td><td>WebView (DOM)</td><td><code>use_signal</code></td><td><code>rsx!</code> (React 風)</td></tr>
+    <tr><td>Leptos</td><td>ブラウザ DOM (WASM)</td><td><code>signal</code> / <code>RwSignal</code></td><td><code>view!</code> (JSX 風)</td></tr>
+    <tr><td>GTK4</td><td>ネイティブ GTK (命令的)</td><td><code>Rc&lt;RefCell&lt;State&gt;&gt;</code> を手動共有</td><td>ウィジェット生成 + <code>append</code></td></tr>
+  </table></div>
+
+  <h3 style="margin-top:24px">「追加」処理のコード比較</h3>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <pre id="code"></pre>
+
+  <h2>6. 長所・短所</h2>
+  <div class="grid" id="proscons"></div>
+
+  <h2>7. 選び方の目安</h2>
+  <div class="card pick">
+    <span>既存の Web 資産がある / デザイン自由度が欲しい</span><b>Tauri / Dioxus</b>
+    <span>速く小さなツール UI を作りたい</span><b>egui</b>
+    <span>状態遷移を厳密に設計したい純 Rust アプリ</span><b>Iced</b>
+    <span>UI と処理を分けたい / 組込みも視野</span><b>Slint</b>
+    <span>React の感覚で Rust を書きたい</span><b>Dioxus</b>
+    <span>Web アプリを Rust で書きたい</span><b>Leptos</b>
+    <span>Linux デスクトップのネイティブアプリ</span><b>GTK4</b>
+  </div>
+
+  <footer>2026-10-10 時点の安定版で検証。小さな TODO アプリ 1 つに基づく比較であり、大規模アプリでの優劣を示すものではありません。詳細は <code>COMPARISON.md</code> を参照。</footer>
+</main>
+
+<script>
+const metrics = {
+  "実装行数 (少ないほど簡潔)": [["egui",46],["Leptos",61],["Dioxus",61],["Iced",70],["Slint",88],["GTK4",102],["Tauri",105]],
+  "リリース成果物 (MB、Leptos は wasm)": [["GTK4*",0.515],["Leptos",0.341],["Dioxus",6.0],["Tauri",9.6],["Iced",10.6],["egui",13.1],["Slint",15.6]],
+  "依存パッケージ数": [["GTK4",65],["Leptos",181],["Iced",383],["Tauri",407],["egui",418],["Dioxus",543],["Slint",568]],
+  "リリースビルド時間 (秒)": [["Iced",34],["egui",41],["GTK4",42],["Dioxus",46],["Slint",60],["Tauri",70]]
+};
+const charts = document.getElementById("charts");
+for (const [title, rows] of Object.entries(metrics)) {
+  const max = Math.max(...rows.map(r => r[1]));
+  const d = document.createElement("div"); d.className = "card";
+  d.innerHTML = `<div class="chart-title">${title}</div>` + rows.map(([n,v]) =>
+    `<div class="row"><span>${n}</span><div class="track"><div class="fill" style="width:${Math.max(v/max*100,1.5)}%"></div></div><span class="val">${v}</span></div>`).join("");
+  charts.append(d);
+}
+const pop = {
+  "GitHub ★ (千)": [["Tauri",111.7],["Dioxus",39.4],["Iced",31.7],["egui",31.1],["Slint",24.1],["Leptos",21.4],["GTK4",2.4]],
+  "直近90日 crates.io DL (百万)": [["Tauri",13.9],["egui",6.2],["GTK4",1.57],["Leptos",1.40],["Dioxus",1.15],["Iced",0.64],["Slint",0.61]]
+};
+for (const [title, rows] of Object.entries(pop)) {
+  const max = Math.max(...rows.map(r => r[1]));
+  const d = document.createElement("div"); d.className = "card";
+  d.innerHTML = `<div class="chart-title">${title}</div>` + rows.map(([n,v]) =>
+    `<div class="row"><span>${n}</span><div class="track"><div class="fill" style="width:${Math.max(v/max*100,1.5)}%"></div></div><span class="val">${v}</span></div>`).join("");
+  document.getElementById("pop").append(d);
+}
+const snippets = {
+  "egui": `// 即時モード: 状態を直接書き換える
+if (ui.button("追加").clicked() || enter) && !self.input.trim().is_empty() {
+    self.todos.push((self.input.trim().to_string(), false));
+    self.input.clear();
+}`,
+  "Iced": `// Message を送り update で処理 (Elm)
+Message::Add => {
+    let t = self.input.trim();
+    if !t.is_empty() {
+        self.todos.push(Todo { title: t.to_string(), done: false });
+        self.input.clear();
+    }
+}`,
+  "Slint": `// UI は app.slint に宣言、ロジックはコールバック登録
+ui.on_add(move |title| {
+    todos.push(TodoItem { title: title.trim().into(), done: false });
+    update();
+});`,
+  "Dioxus": `// シグナルを更新すれば UI が自動で更新される
+let mut add = move || {
+    let t = input().trim().to_string();
+    if !t.is_empty() {
+        todos.write().push(Todo { id, title: t, done: false });
+        input.set(String::new());
+    }
+};`,
+  "Leptos": `// Dioxus に近いが DOM 操作が細粒度 (WASM)
+let add = move || {
+    let t = input.get().trim().to_string();
+    if !t.is_empty() {
+        set_todos.update(|v| v.push(Todo { id, title: t, done: RwSignal::new(false) }));
+        set_input.set(String::new());
+    }
+};`,
+  "Tauri": `// Rust 側 (main.rs)
+#[tauri::command]
+fn add(state: State<AppState>, title: String) -> Vec<Todo> { /* push して全件を返す */ }
+
+// JS 側 (src/index.html)
+render(await invoke("add", { title: $("input").value }));`,
+  "GTK4": `// 状態変更後に UI を手動で再構築
+state.borrow_mut().todos.push(Todo { title: t, done: false });
+entry.set_text("");
+render(&state); // 子ウィジェットを全削除して作り直す`
+};
+const tabs = document.getElementById("tabs"), code = document.getElementById("code");
+function show(name) {
+  code.textContent = snippets[name];
+  [...tabs.children].forEach(b => b.setAttribute("aria-selected", b.textContent === name));
+}
+Object.keys(snippets).forEach(n => {
+  const b = document.createElement("button");
+  b.className = "tab"; b.role = "tab"; b.textContent = n; b.onclick = () => show(n);
+  tabs.append(b);
+});
+show("egui");
+
+const pc = [
+  ["Tauri", ["Web 技術資産を再利用できる","Rust 側に処理を隔離できる","成果物は比較的小さい"], ["フロントと Rust の二言語","設定ファイルが多い","WebView の OS 差異に依存"]],
+  ["egui", ["最少行数・最小セットアップ","ツール/デバッグ UI に最適"], ["ネイティブらしい見た目ではない","アクセシビリティ・IME・複雑なレイアウトは弱め"]],
+  ["Iced", ["状態遷移が明快でテストしやすい","Rust のみで完結"], ["API 変更が多い","ウィジェットが比較的少ない"]],
+  ["Slint", ["UI と処理の分離が明確","組込みからデスクトップまで対応"], ["DSL の習得が必要","ライセンス確認が必要","ビルドが重め"]],
+  ["Dioxus", ["React 経験者に馴染む","Web/モバイルと共通化しやすい"], ["バージョンが若く API が動く","デスクトップは WebView 依存"]],
+  ["Leptos", ["依存が少なく WASM が非常に小さい","細粒度リアクティブで効率的"], ["ネイティブアプリではない","trunk と WASM ターゲットが必要"]],
+  ["GTK4", ["本物のネイティブ UI","依存パッケージが少ない"], ["macOS/Windows では導入が面倒","命令的で記述量が多く状態同期は手動"]]
+];
+document.getElementById("proscons").innerHTML = pc.map(([n,p,c]) =>
+  `<div class="card"><b>${n}</b><ul class="tight pros">${p.map(x=>`<li>＋ ${x}</li>`).join("")}</ul><ul class="tight cons">${c.map(x=>`<li>− ${x}</li>`).join("")}</ul></div>`).join("");
+</script>
+</body>
+</html>

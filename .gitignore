@@ -1,0 +1,13 @@
+# Cargo のビルド成果物
+target/
+
+# Trunk (Leptos) の出力
+06-leptos/dist/
+
+# Tauri が自動生成するファイル
+01-tauri/src-tauri/gen/
+
+# OS / エディタ
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,34 @@
+import { Button, CheckBox, LineEdit, ListView, VerticalBox, HorizontalBox } from "std-widgets.slint";
+
+export struct TodoItem { title: string, done: bool }
+
+export component MainWindow inherits Window {
+    title: "TODO (Slint)";
+    preferred-width: 420px;
+    preferred-height: 480px;
+    in-out property <[TodoItem]> todos;
+    in-out property <string> input;
+    in property <int> remaining;
+    callback add(string);
+    callback toggle(int, bool);
+    callback remove(int);
+
+    VerticalBox {
+        Text { text: "TODO (Slint)"; font-size: 22px; }
+        HorizontalBox {
+            le := LineEdit {
+                placeholder-text: "新しいタスク";
+                text <=> root.input;
+                accepted => { root.add(self.text); }
+            }
+            Button { text: "追加"; clicked => { root.add(le.text); } }
+        }
+        ListView {
+            for item[i] in root.todos : HorizontalBox {
+                CheckBox { text: item.title; checked: item.done; toggled => { root.toggle(i, self.checked); } }
+                Button { text: "削除"; clicked => { root.remove(i); } }
+            }
+        }
+        Text { text: "残り \{root.remaining} 件"; }
+    }
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>TODO (Tauri)</title>
+  <style>
+    body { font-family: sans-serif; padding: 16px; }
+    li { list-style: none; margin: 4px 0; }
+    .done span { text-decoration: line-through; color: #888; }
+  </style>
+</head>
+<body>
+  <h2>TODO (Tauri)</h2>
+  <form id="form"><input id="input" placeholder="新しいタスク" autofocus /> <button>追加</button></form>
+  <ul id="list"></ul>
+  <p id="remaining"></p>
+  <script>
+    const { invoke } = window.__TAURI__.core;
+    const $ = (id) => document.getElementById(id);
+
+    function render(todos) {
+      $("list").innerHTML = "";
+      for (const t of todos) {
+        const li = document.createElement("li");
+        li.className = t.done ? "done" : "";
+        const cb = Object.assign(document.createElement("input"), { type: "checkbox", checked: t.done });
+        cb.onchange = async () => render(await invoke("toggle", { id: t.id }));
+        const span = document.createElement("span");
+        span.textContent = " " + t.title + " ";
+        const del = Object.assign(document.createElement("button"), { textContent: "削除" });
+        del.onclick = async () => render(await invoke("remove", { id: t.id }));
+        li.append(cb, span, del);
+        $("list").append(li);
+      }
+      $("remaining").textContent = `残り ${todos.filter((t) => !t.done).length} 件`;
+    }
+
+    $("form").onsubmit = async (e) => {
+      e.preventDefault();
+      render(await invoke("add", { title: $("input").value }));
+      $("input").value = "";
+    };
+    invoke("list").then(render);
+  </script>
+</body>
+</html>
