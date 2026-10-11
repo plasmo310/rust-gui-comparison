@@ -10,6 +10,7 @@
 |---|---|---|---|
 | [`00-basic`](00-basic) | Rust 言語の主要機能（CLI） | rustc 1.99.0 | `cargo run` / `cargo test` |
 | [`01-tauri`](01-tauri) | Tauri（WebView + HTML/JS + Rust） | tauri 2.12.2 | `cd src-tauri && cargo run` |
+| [`01-tauri-react`](01-tauri-react) | Tauri + React（Vite + TypeScript） | tauri 2.12.2 / react 19 | `npm install && npm run tauri dev` |
 | [`02-egui`](02-egui) | egui / eframe（即時モード） | eframe 0.36.2 | `cargo run` |
 | [`03-iced`](03-iced) | Iced（Elm アーキテクチャ） | iced 0.14.0 | `cargo run` |
 | [`04-slint`](04-slint) | Slint（宣言的 DSL） | slint 1.18.1 | `cargo run` |
@@ -28,6 +29,7 @@ cargo run
 
 - Rust（検証時は 1.99.0）。`rustup` で導入してください。
 - 共通で追加の準備が要らないもの: `00-basic`, `02-egui`, `03-iced`, `04-slint`, `05-dioxus`
+- `01-tauri-react`: Node.js と npm が必要です（検証時は Node 22）。
 - `01-tauri`: OS の WebView が必要です（macOS / Windows は標準。Linux は webkit2gtk）。
 - `06-leptos`: 次を事前に実行してください。
   ```sh

@@ -55,6 +55,7 @@
     <tr><th>フォルダ</th><th>手法</th><th>バージョン</th><th>ビルド</th><th>リリース</th></tr>
     <tr><td><code>00-basic</code></td><td>Rust 言語の主要機能 (CLI)</td><td>rustc 1.99.0</td><td class="ok">OK</td><td class="ok">OK (テスト 3 件成功)</td></tr>
     <tr><td><code>01-tauri</code></td><td>Tauri (WebView + HTML/JS + Rust)</td><td>2.12.2</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+    <tr><td><code>01-tauri-react</code></td><td>Tauri + React（Vite + TypeScript）</td><td>2.12.2 / react 19</td><td class="ok">OK</td><td class="na">未実施</td></tr>
     <tr><td><code>02-egui</code></td><td>egui / eframe (即時モード)</td><td>0.36.2</td><td class="ok">OK</td><td class="ok">OK</td></tr>
     <tr><td><code>03-iced</code></td><td>Iced (Elm アーキテクチャ)</td><td>0.14.0</td><td class="ok">OK</td><td class="ok">OK</td></tr>
     <tr><td><code>04-slint</code></td><td>Slint (宣言的 DSL)</td><td>1.18.1</td><td class="ok">OK</td><td class="ok">OK</td></tr>
@@ -70,6 +71,7 @@
     <tr><th>手法</th><th>行数 (Rust+UI)</th><th>依存数</th><th>リリースビルド</th><th>成果物</th><th>target/ 合計</th></tr>
     <tr><td>00-basic</td><td class="num">223</td><td class="num">1</td><td class="num">&lt;1 秒</td><td class="num">518 KB</td><td class="num">12 MB</td></tr>
     <tr><td>Tauri</td><td class="num">59 + 46 = 105</td><td class="num">407</td><td class="num">70 秒</td><td class="num">9.6 MB</td><td class="num">2,160 MB</td></tr>
+    <tr><td>Tauri + React</td><td class="num">66 + 66 = 132</td><td class="num">407（+ npm）</td><td class="num na">未計測</td><td class="num na">未計測</td><td class="num">node_modules 87 MB</td></tr>
     <tr><td>egui</td><td class="num">46</td><td class="num">418</td><td class="num">41 秒</td><td class="num">13.1 MB</td><td class="num">2,212 MB</td></tr>
     <tr><td>Iced</td><td class="num">70</td><td class="num">383</td><td class="num">34 秒</td><td class="num">10.6 MB</td><td class="num">1,903 MB</td></tr>
     <tr><td>Slint</td><td class="num">54 + 34 = 88</td><td class="num">568</td><td class="num">60 秒</td><td class="num">15.6 MB</td><td class="num">3,827 MB</td></tr>
@@ -125,6 +127,7 @@
   <div class="table-wrap"><table>
     <tr><th>手法</th><th>macOS</th><th>Linux (Debian/Ubuntu)</th><th>Windows</th><th>コスト (mac / Linux / Win)</th></tr>
     <tr><td>Tauri</td><td>追加なし</td><td><code>apt install</code> 8 パッケージ（libwebkit2gtk-4.1-dev, libxdo-dev, libssl-dev, libayatana-appindicator3-dev, librsvg2-dev ほか）</td><td>WebView2（Win10 1803 以降は標準）</td><td>低 / 中 / 低〜中</td></tr>
+    <tr><td>Tauri + React</td><td>Node.js / npm（<code>npm install</code>）</td><td>Tauri と同じ + Node.js / npm</td><td>Tauri と同じ + Node.js / npm</td><td>中 / 中〜高 / 中</td></tr>
     <tr><td>egui</td><td>追加なし</td><td>公式 README: <code>apt install</code> 6 パッケージ（libclang-dev, libgtk-3-dev, libxcb-*-dev, libxkbcommon-dev, libssl-dev）※デモアプリ向けの記載</td><td>追加なし（公式記載）</td><td>低 / 中 / 低</td></tr>
     <tr><td>Iced</td><td>追加なし</td><td>公式 README に記載なし（未確認）</td><td>公式 README に記載なし</td><td>低 / 不明 / 低</td></tr>
     <tr><td>Slint</td><td>追加なし</td><td>公式 README に記載なし（未確認）</td><td>公式 README に記載なし</td><td>低 / 不明 / 低</td></tr>
@@ -139,6 +142,7 @@ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh</pre>
   <div class="table-wrap" style="margin-top:10px"><table>
     <tr><th>手法</th><th>追加の準備</th><th>実行</th><th>初回 cargo build *</th></tr>
     <tr><td>Tauri</td><td>なし</td><td><code>cd 01-tauri/src-tauri &amp;&amp; cargo run</code></td><td class="num">80 秒</td></tr>
+    <tr><td>Tauri + React</td><td><code>npm install</code>（Node.js 必須）</td><td><code>cd 01-tauri-react &amp;&amp; npm run tauri dev</code></td><td class="num na">未計測</td></tr>
     <tr><td>egui</td><td>なし</td><td><code>cd 02-egui &amp;&amp; cargo run</code></td><td class="num">約 20 秒 **</td></tr>
     <tr><td>Iced</td><td>なし</td><td><code>cd 03-iced &amp;&amp; cargo run</code></td><td class="num">24 秒</td></tr>
     <tr><td>Slint</td><td>なし</td><td><code>cd 04-slint &amp;&amp; cargo run</code></td><td class="num">29 秒</td></tr>
@@ -162,6 +166,7 @@ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh</pre>
   <div class="table-wrap"><table>
     <tr><th>手法</th><th>描画</th><th>状態管理</th><th>UI の書き方</th></tr>
     <tr><td>Tauri</td><td>OS の WebView (DOM)</td><td>Rust 側 <code>Mutex&lt;Store&gt;</code> + コマンド</td><td>HTML / CSS / JS</td></tr>
+    <tr><td>Tauri + React</td><td>OS の WebView (DOM)</td><td>Rust 側 <code>Mutex&lt;Store&gt;</code> + React <code>useState</code></td><td>JSX / TypeScript</td></tr>
     <tr><td>egui</td><td>即時モード (毎フレーム再構築)</td><td>構造体のフィールド</td><td><code>ui.button()</code> 等を毎フレーム呼ぶ</td></tr>
     <tr><td>Iced</td><td>保持モード + wgpu</td><td><code>Message</code> + <code>update</code> (Elm)</td><td><code>view</code> が <code>Element</code> を返す</td></tr>
     <tr><td>Slint</td><td>独自レンダラ</td><td>.slint プロパティ + <code>VecModel</code></td><td>宣言的 DSL + コールバック</td></tr>

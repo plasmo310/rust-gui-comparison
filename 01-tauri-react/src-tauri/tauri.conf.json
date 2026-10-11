@@ -1,0 +1,16 @@
+{
+  "productName": "todo-tauri-react",
+  "version": "0.1.0",
+  "identifier": "dev.example.todo-tauri-react",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{ "title": "TODO (Tauri + React)", "width": 420, "height": 520 }],
+    "security": { "csp": null }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.png"] }
+}

@@ -4,8 +4,12 @@ target/
 # Trunk (Leptos) の出力
 06-leptos/dist/
 
+# Vite (React) の出力と npm
+01-tauri-react/dist/
+node_modules/
+
 # Tauri が自動生成するファイル
-01-tauri/src-tauri/gen/
+**/src-tauri/gen/
 
 # OS / エディタ
 .DS_Store

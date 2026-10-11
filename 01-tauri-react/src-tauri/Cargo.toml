@@ -1,0 +1,16 @@
+[package]
+name = "todo-tauri-react"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+tauri = "2.12.2"
+
+[build-dependencies]
+tauri-build = "2.7.1"
+
+[lib]
+name = "todo_tauri_react_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]

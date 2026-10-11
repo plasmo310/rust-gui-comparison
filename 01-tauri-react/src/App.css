@@ -1,0 +1,3 @@
+body { font-family: sans-serif; padding: 16px; }
+li { list-style: none; margin: 4px 0; }
+.done span { text-decoration: line-through; color: #888; }

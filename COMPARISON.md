@@ -6,6 +6,7 @@
 |---|---|---|
 | `00-basic` | Rust 言語の主要機能 (CLI) | rustc 1.99.0 |
 | `01-tauri` | Tauri (WebView + HTML/JS + Rust) | tauri 2.12.2 |
+| `01-tauri-react` | Tauri + React（Vite + TypeScript） | tauri 2.12.2 / react 19 / vite 8 |
 | `02-egui` | egui / eframe (即時モード) | eframe 0.36.2 |
 | `03-iced` | Iced (Elm アーキテクチャ) | iced 0.14.0 |
 | `04-slint` | Slint (宣言的 DSL) | slint 1.18.1 |
@@ -19,6 +20,7 @@
 |---|---|---|---|
 | 00-basic | OK | OK (`cargo test` 3 件成功、`cargo run` で出力確認) | 該当なし |
 | 01-tauri | OK | OK | 未実施 |
+| 01-tauri-react | OK（`npm run build` + `cargo build`） | 未実施 | 未実施 |
 | 02-egui | OK | OK | 未実施 |
 | 03-iced | OK | OK | 未実施 |
 | 04-slint | OK | OK | 未実施 |
@@ -36,6 +38,7 @@
 |---|---|---|---|---|---|
 | 00-basic | 223 | 1 | <1 秒 | 518 KB | 12 MB |
 | 01-tauri | 59 + HTML/JS 46 = 105 | 407 | 70 秒 | 9.6 MB | 2,160 MB |
+| 01-tauri-react | Rust 66 + TSX/CSS/HTML 66 = 132 | 407（+ npm） | 未計測 | 未計測 | `node_modules/` 87 MB（+ Rust の `target/`） |
 | 02-egui | 46 | 418 | 41 秒 | 13.1 MB | 2,212 MB |
 | 03-iced | 70 | 383 | 34 秒 | 10.6 MB | 1,903 MB |
 | 04-slint | 54 + .slint 34 = 88 | 568 | 60 秒 | 15.6 MB | 3,827 MB |
@@ -60,6 +63,7 @@ Rust（`rustup`）と C リンカ（macOS: Xcode Command Line Tools / Windows: M
 | 手法 | macOS | Linux (Debian/Ubuntu) | Windows | コスト目安 (mac / Linux / Win) |
 |---|---|---|---|---|
 | Tauri | 追加なし | `apt install` 8 パッケージ（libwebkit2gtk-4.1-dev, libxdo-dev, libssl-dev, libayatana-appindicator3-dev, librsvg2-dev ほか） | WebView2（Win10 1803 以降は標準） | 低 / 中 / 低〜中 |
+| Tauri + React | Node.js / npm（`npm install`） | Tauri と同じ + Node.js / npm | Tauri と同じ + Node.js / npm | 中 / 中〜高 / 中 |
 | egui | 追加なし | 公式 README: `apt install` 6 パッケージ（libclang-dev, libgtk-3-dev, libxcb-*-dev, libxkbcommon-dev, libssl-dev）※デモアプリ向けの記載 | 追加なし（公式記載） | 低 / 中 / 低 |
 | Iced | 追加なし | 公式 README に記載なし（未確認） | 公式 README に記載なし | 低 / 不明 / 低 |
 | Slint | 追加なし | 公式 README に記載なし（未確認） | 公式 README に記載なし | 低 / 不明 / 低 |
@@ -80,6 +84,7 @@ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 | 手法 | 追加の準備 | 実行 |
 |---|---|---|
 | Tauri | なし | `cd 01-tauri/src-tauri && cargo run` |
+| Tauri + React | `npm install`（Node.js 必須） | `cd 01-tauri-react && npm run tauri dev` |
 | egui | なし | `cd 02-egui && cargo run` |
 | Iced | なし | `cd 03-iced && cargo run` |
 | Slint | なし | `cd 04-slint && cargo run` |
@@ -129,6 +134,7 @@ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 | 手法 | 描画方式 | 状態管理 | UI の書き方 | 言語 |
 |---|---|---|---|---|
 | Tauri | OS の WebView (DOM) | Rust 側 `Mutex<Store>` + コマンドで JS から操作 | HTML/CSS/JS | Rust + JS |
+| Tauri + React | OS の WebView (DOM) | Rust 側 `Mutex<Store>` + React `useState`（`invoke` の戻り値で置換） | JSX / TypeScript |
 | egui | 即時モード (毎フレーム再構築、GPU) | 普通の構造体のフィールド | `ui.button()` などを毎フレーム呼ぶ | Rust |
 | Iced | 保持モード + wgpu | `State` + `Message` + `update` (Elm) | `view` が `Element` を返す | Rust |
 | Slint | 独自レンダラ (GPU / ソフトウェア) | `.slint` のプロパティ + Rust の `VecModel` | 宣言的 DSL + コールバック | Slint DSL + Rust |
