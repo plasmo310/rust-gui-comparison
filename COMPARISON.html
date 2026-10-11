@@ -162,6 +162,39 @@ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh</pre>
   </div>
   <div class="card" style="margin-top:14px"><b>総合（軽い順）:</b> egui ≒ Iced ≒ Slint（ほぼ <code>cargo run</code> だけ）→ Dioxus ≒ Tauri（Linux でパッケージ導入）→ Leptos（trunk と WASM ターゲット）→ GTK4（特に Windows）</div>
 
+  <h3 style="margin-top:24px">ゼロから新規作成する手順（雛形コマンド）</h3>
+  <p class="lead">上は「このリポジトリを動かす」手順です。一から作る場合は、雛形コマンドで骨組みを生成してから TODO のロジックと UI を書き足します。</p>
+  <div class="note"><b>注意:</b> このコマンドは各公式の案内に基づく一般的な手順で、本リポジトリでは実行して検証していません。</div>
+  <div class="table-wrap"><table>
+    <tr><th>手法</th><th>骨組みの作り方</th><th>自動で出来るもの</th><th>自分で書くもの</th></tr>
+    <tr><td>Tauri</td><td><code>npm create tauri-app@latest</code>（素の JS を選択）</td><td><code>tauri.conf.json</code>, <code>capabilities</code>, <code>build.rs</code>, アイコン, <code>src-tauri/</code> 一式</td><td>Rust のコマンド（add / toggle / remove / list）と HTML/JS</td></tr>
+    <tr><td>Tauri + React</td><td>同上（React + TypeScript を選択）</td><td>上に加え <code>package.json</code>, <code>vite.config.ts</code>, <code>tsconfig.json</code></td><td>Rust のコマンドと <code>App.tsx</code></td></tr>
+    <tr><td>egui</td><td><code>cargo new todo-egui &amp;&amp; cd todo-egui &amp;&amp; cargo add eframe</code></td><td><code>Cargo.toml</code>, <code>main.rs</code></td><td><code>main.rs</code> 全部</td></tr>
+    <tr><td>Iced</td><td><code>cargo new todo-iced &amp;&amp; cd todo-iced &amp;&amp; cargo add iced</code></td><td>同上</td><td><code>main.rs</code> 全部</td></tr>
+    <tr><td>Slint</td><td><code>cargo install cargo-generate</code> のあと <code>cargo generate --git https://github.com/slint-ui/slint-rust-template</code></td><td><code>Cargo.toml</code>, <code>build.rs</code>, <code>ui/*.slint</code> の雛形</td><td><code>.slint</code> の UI と Rust 側のコールバック</td></tr>
+    <tr><td>Dioxus</td><td><code>cargo install dioxus-cli</code> のあと <code>dx new</code></td><td>プロジェクト一式（デスクトップを選択）</td><td><code>main.rs</code> の UI と状態</td></tr>
+    <tr><td>Leptos</td><td><code>cargo new todo-leptos &amp;&amp; cd todo-leptos &amp;&amp; cargo add leptos --features csr</code> と <code>index.html</code> の作成</td><td><code>Cargo.toml</code>, <code>main.rs</code></td><td><code>index.html</code>（数行）と <code>main.rs</code></td></tr>
+    <tr><td>GTK4</td><td><code>cargo new todo-gtk4 &amp;&amp; cd todo-gtk4 &amp;&amp; cargo add gtk4</code>（先に <code>brew install gtk4</code>）</td><td><code>Cargo.toml</code>, <code>main.rs</code></td><td><code>main.rs</code> 全部</td></tr>
+  </table></div>
+  <ul class="tight">
+    <li>手で用意するファイルが多いのは Tauri 系だけで、雛形コマンドの利用がほぼ前提です。</li>
+    <li>egui / Iced / GTK4 は <code>cargo new</code> と <code>cargo add</code> の 2 コマンドで始められ、残りは <code>main.rs</code> に書きます。</li>
+    <li>Slint と Leptos は <code>build.rs</code> + <code>.slint</code> や <code>index.html</code> といった少量の補助ファイルが加わります。</li>
+  </ul>
+  <h3 style="margin-top:24px">公式リンク</h3>
+  <div class="table-wrap"><table>
+    <tr><th>手法</th><th>公式サイト / ドキュメント</th><th>リポジトリ</th></tr>
+    <tr><td>Rust 本体</td><td><a href="https://rustup.rs">rustup</a> / <a href="https://doc.rust-lang.org/book/">The Rust Book</a></td><td><a href="https://github.com/rust-lang/rust">rust-lang/rust</a></td></tr>
+    <tr><td>Tauri</td><td><a href="https://tauri.app">公式サイト</a> / <a href="https://v2.tauri.app/start/create-project/">Create a Project</a></td><td><a href="https://github.com/tauri-apps/tauri">tauri-apps/tauri</a></td></tr>
+    <tr><td>egui / eframe</td><td><a href="https://docs.rs/egui">docs.rs/egui</a> / <a href="https://www.egui.rs">デモ</a></td><td><a href="https://github.com/emilk/egui">emilk/egui</a> / <a href="https://github.com/emilk/eframe_template">eframe_template</a></td></tr>
+    <tr><td>Iced</td><td><a href="https://iced.rs">公式サイト</a> / <a href="https://docs.rs/iced">docs.rs/iced</a></td><td><a href="https://github.com/iced-rs/iced">iced-rs/iced</a></td></tr>
+    <tr><td>Slint</td><td><a href="https://slint.dev">公式サイト</a> / <a href="https://docs.slint.dev">ドキュメント</a></td><td><a href="https://github.com/slint-ui/slint">slint-ui/slint</a> / <a href="https://github.com/slint-ui/slint-rust-template">slint-rust-template</a></td></tr>
+    <tr><td>Dioxus</td><td><a href="https://dioxuslabs.com">公式サイト</a> / <a href="https://dioxuslabs.com/learn/0.7/">Learn</a></td><td><a href="https://github.com/DioxusLabs/dioxus">DioxusLabs/dioxus</a></td></tr>
+    <tr><td>Leptos</td><td><a href="https://leptos.dev">公式サイト</a> / <a href="https://book.leptos.dev">The Leptos Book</a></td><td><a href="https://github.com/leptos-rs/leptos">leptos-rs/leptos</a></td></tr>
+    <tr><td>Trunk</td><td><a href="https://trunkrs.dev">公式サイト</a></td><td><a href="https://github.com/trunk-rs/trunk">trunk-rs/trunk</a></td></tr>
+    <tr><td>GTK4（gtk4-rs）</td><td><a href="https://gtk-rs.org">gtk-rs.org</a> / <a href="https://gtk-rs.org/gtk4-rs/stable/latest/book/">GTK 4 book</a></td><td><a href="https://github.com/gtk-rs/gtk4-rs">gtk-rs/gtk4-rs</a></td></tr>
+  </table></div>
+
   <h2>5. 実装方法の違い</h2>
   <div class="table-wrap"><table>
     <tr><th>手法</th><th>描画</th><th>状態管理</th><th>UI の書き方</th></tr>

@@ -129,6 +129,43 @@ curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
 
 環境構築が軽い順（macOS / Linux / Windows をまとめた印象）: **egui ≒ Iced ≒ Slint**（ほぼ `cargo run` だけ）→ **Dioxus ≒ Tauri**（Linux でパッケージ導入）→ **Leptos**（`trunk` と WASM ターゲット）→ **GTK4**（特に Windows）。
 
+### 3-7. ゼロから新規作成する手順（雛形コマンド）
+
+3-2 は「このリポジトリを動かす」手順です。**自分で一から作る**場合は、骨組みを雛形コマンドで生成してから、TODO のロジックと UI を書き足します。
+
+> 注意: この節のコマンドは各公式の案内に基づく一般的な手順で、本リポジトリでは実行して検証していません。このリポジトリのコードは、骨組み生成後に TODO 用へ書き換えたものに相当します。
+
+| 手法 | 骨組みの作り方 | 自動で出来るもの | 自分で書くもの |
+|---|---|---|---|
+| Tauri | `npm create tauri-app@latest`（テンプレートで素の JS を選択） | `tauri.conf.json`, `capabilities`, `build.rs`, アイコン, `src-tauri/` 一式 | Rust のコマンド（add / toggle / remove / list）と HTML/JS |
+| Tauri + React | 同上（テンプレートで React + TypeScript を選択） | 上に加え `package.json`, `vite.config.ts`, `tsconfig.json` | Rust のコマンドと `App.tsx` |
+| egui | `cargo new todo-egui && cd todo-egui && cargo add eframe` | `Cargo.toml`, `main.rs` | `main.rs` 全部 |
+| Iced | `cargo new todo-iced && cd todo-iced && cargo add iced` | 同上 | `main.rs` 全部 |
+| Slint | `cargo install cargo-generate` のあと `cargo generate --git https://github.com/slint-ui/slint-rust-template` | `Cargo.toml`, `build.rs`, `ui/*.slint` の雛形 | `.slint` の UI と Rust 側のコールバック |
+| Dioxus | `cargo install dioxus-cli` のあと `dx new` | プロジェクト一式（デスクトップを選択） | `main.rs` の UI と状態 |
+| Leptos | `cargo new todo-leptos && cd todo-leptos && cargo add leptos --features csr` と `index.html` の作成（trunk 用） | `Cargo.toml`, `main.rs` | `index.html`（数行）と `main.rs` |
+| GTK4 | `cargo new todo-gtk4 && cd todo-gtk4 && cargo add gtk4`（`brew install gtk4` が先に必要） | `Cargo.toml`, `main.rs` | `main.rs` 全部 |
+
+ポイント:
+
+- 手で用意するファイルが多いのは Tauri 系だけで、雛形コマンドの利用がほぼ前提です。
+- egui / Iced / GTK4 は `cargo new` と `cargo add` の 2 コマンドで始められ、残りはすべて `main.rs` に書きます。
+- Slint と Leptos は、`build.rs` + `.slint` や `index.html` といった少量の補助ファイルが加わります。
+
+詳細は各公式の資料を参照してください（リンクは 2026-10 時点で確認できた代表的なものです）。
+
+| 手法 | 公式サイト / ドキュメント | リポジトリ |
+|---|---|---|
+| Rust 本体 | [rustup（インストール）](https://rustup.rs) / [The Rust Book](https://doc.rust-lang.org/book/) | [rust-lang/rust](https://github.com/rust-lang/rust) |
+| Tauri | [公式サイト](https://tauri.app) / [Create a Project](https://v2.tauri.app/start/create-project/) | [tauri-apps/tauri](https://github.com/tauri-apps/tauri) |
+| egui / eframe | [docs.rs/egui](https://docs.rs/egui) / [デモ](https://www.egui.rs) | [emilk/egui](https://github.com/emilk/egui) / [eframe_template](https://github.com/emilk/eframe_template) |
+| Iced | [公式サイト](https://iced.rs) / [docs.rs/iced](https://docs.rs/iced) | [iced-rs/iced](https://github.com/iced-rs/iced) |
+| Slint | [公式サイト](https://slint.dev) / [ドキュメント](https://docs.slint.dev) | [slint-ui/slint](https://github.com/slint-ui/slint) / [slint-rust-template](https://github.com/slint-ui/slint-rust-template) |
+| Dioxus | [公式サイト](https://dioxuslabs.com) / [Learn](https://dioxuslabs.com/learn/0.7/) | [DioxusLabs/dioxus](https://github.com/DioxusLabs/dioxus) |
+| Leptos | [公式サイト](https://leptos.dev) / [The Leptos Book](https://book.leptos.dev) | [leptos-rs/leptos](https://github.com/leptos-rs/leptos) |
+| Trunk（Leptos のビルドツール） | [公式サイト](https://trunkrs.dev) | [trunk-rs/trunk](https://github.com/trunk-rs/trunk) |
+| GTK4（gtk4-rs） | [gtk-rs.org](https://gtk-rs.org) / [GUI development with Rust and GTK 4（book）](https://gtk-rs.org/gtk4-rs/stable/latest/book/) | [gtk-rs/gtk4-rs](https://github.com/gtk-rs/gtk4-rs) |
+
 ## 4. アーキテクチャと実装方法の違い
 
 | 手法 | 描画方式 | 状態管理 | UI の書き方 | 言語 |

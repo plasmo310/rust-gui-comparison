@@ -9,14 +9,14 @@
 | フォルダ | 内容 | 使用バージョン | 起動 |
 |---|---|---|---|
 | [`00-basic`](00-basic) | Rust 言語の主要機能（CLI） | rustc 1.99.0 | `cargo run` / `cargo test` |
-| [`01-tauri`](01-tauri) | Tauri（WebView + HTML/JS + Rust） | tauri 2.12.2 | `cd src-tauri && cargo run` |
-| [`01-tauri-react`](01-tauri-react) | Tauri + React（Vite + TypeScript） | tauri 2.12.2 / react 19 | `npm install && npm run tauri dev` |
-| [`02-egui`](02-egui) | egui / eframe（即時モード） | eframe 0.36.2 | `cargo run` |
-| [`03-iced`](03-iced) | Iced（Elm アーキテクチャ） | iced 0.14.0 | `cargo run` |
-| [`04-slint`](04-slint) | Slint（宣言的 DSL） | slint 1.18.1 | `cargo run` |
-| [`05-dioxus`](05-dioxus) | Dioxus desktop（RSX + signals） | dioxus 0.7.10 | `cargo run` |
-| [`06-leptos`](06-leptos) | Leptos CSR（WASM、ブラウザ） | leptos 0.8.22 | `trunk serve --open` |
-| [`07-gtk4`](07-gtk4) | GTK4（gtk4-rs） | gtk4 0.11.5 | `cargo run` |
+| [`01-tauri`](01-tauri) | [Tauri](https://tauri.app)（WebView + HTML/JS + Rust） | tauri 2.12.2 | `cd src-tauri && cargo run` |
+| [`01-tauri-react`](01-tauri-react) | [Tauri](https://tauri.app) + [React](https://react.dev)（Vite + TypeScript） | tauri 2.12.2 / react 19 | `npm install && npm run tauri dev` |
+| [`02-egui`](02-egui) | [egui / eframe](https://github.com/emilk/egui)（即時モード） | eframe 0.36.2 | `cargo run` |
+| [`03-iced`](03-iced) | [Iced](https://iced.rs)（Elm アーキテクチャ） | iced 0.14.0 | `cargo run` |
+| [`04-slint`](04-slint) | [Slint](https://slint.dev)（宣言的 DSL） | slint 1.18.1 | `cargo run` |
+| [`05-dioxus`](05-dioxus) | [Dioxus](https://dioxuslabs.com) desktop（RSX + signals） | dioxus 0.7.10 | `cargo run` |
+| [`06-leptos`](06-leptos) | [Leptos](https://leptos.dev) CSR（WASM、ブラウザ） | leptos 0.8.22 | `trunk serve --open` |
+| [`07-gtk4`](07-gtk4) | GTK4（[gtk4-rs](https://gtk-rs.org)） | gtk4 0.11.5 | `cargo run` |
 
 各フォルダは独立した Cargo プロジェクトです（ワークスペースではありません）。そのため、実行は各フォルダに移動して行います。
 
